@@ -16,15 +16,15 @@ import java.util.Map;
 @Component
 public class JWTUtils {
 
-  private final String SECRETE = "secrete keyword";
+  private final String SECRETE = "this is long long long long long long long secrete keyword";
 
-  private final String expirationTime = "60000";
+  private final String expirationTime = "1800";
 
   private Key key;
 
   @PostConstruct
   public void init() {
-    this.key = Keys.hmacShaKeyFor(SECRETE.getBytes(StandardCharsets.UTF_8));
+    this.key = Keys.hmacShaKeyFor(SECRETE.getBytes());
   }
 
   public Claims getAllClaimsFromToken(String token) {
