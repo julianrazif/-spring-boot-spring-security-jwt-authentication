@@ -1,7 +1,9 @@
 package id.julianraziffigaro.demo.sbssja.security.service;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 
+@Component
 public class PBKDF2Encoder implements PasswordEncoder {
 
   private final PasswordService passwordService;
