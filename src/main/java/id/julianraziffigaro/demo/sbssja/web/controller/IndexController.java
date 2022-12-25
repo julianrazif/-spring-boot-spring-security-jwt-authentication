@@ -1,13 +1,47 @@
 package id.julianraziffigaro.demo.sbssja.web.controller;
 
+import id.julianraziffigaro.demo.sbssja.security.config.JWTUtils;
+import id.julianraziffigaro.demo.sbssja.web.domain.dto.BaseDTO;
+import id.julianraziffigaro.demo.sbssja.web.domain.dto.request.RequestDTO;
+import id.julianraziffigaro.demo.sbssja.web.domain.dto.response.ResponseDTO;
+import id.julianraziffigaro.demo.sbssja.web.domain.model.AuthenticationDomain;
+import id.julianraziffigaro.demo.sbssja.web.domain.model.ErrorDomain;
+import id.julianraziffigaro.demo.sbssja.web.domain.model.UserDomain;
+import id.julianraziffigaro.demo.sbssja.web.exception.LoginException;
+import id.julianraziffigaro.demo.sbssja.web.service.impl.UserServiceImpl;
+import io.jsonwebtoken.security.InvalidKeyException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+@RequiredArgsConstructor
 @RestController
-public class IndexController {
+public class IndexController extends BaseController {
+
+  private final UserServiceImpl userService;
+
+  private final JWTUtils jwtUtils;
 
   @GetMapping(value = "/")
   public String getIndex() {
     return "Hello World!";
+  }
+
+  @PostMapping(value = "/login")
+  public ResponseEntity<BaseDTO> login(@RequestBody RequestDTO<UserDomain> requestDTO) {
+    try {
+      UserDetails user = userService.login(requestDTO.getData());
+      String token = jwtUtils.generateToken(user);
+      return restResponse(HttpStatus.OK, new ResponseDTO<>(HttpStatus.OK.value(), new AuthenticationDomain(token)));
+    } catch (LoginException ex) {
+      return restResponse(HttpStatus.BAD_REQUEST, new ResponseDTO<>(HttpStatus.BAD_REQUEST.value(), new ErrorDomain(ex.hashCode(), ex.getMessage())));
+    } catch (InvalidKeyException ex) {
+      return restResponse(HttpStatus.INTERNAL_SERVER_ERROR, new ResponseDTO<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), new ErrorDomain(ex.hashCode(), ex.getMessage())));
+    }
   }
 }
