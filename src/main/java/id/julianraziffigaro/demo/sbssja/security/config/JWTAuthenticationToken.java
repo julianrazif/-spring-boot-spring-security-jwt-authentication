@@ -1,21 +1,24 @@
 package id.julianraziffigaro.demo.sbssja.security.config;
 
+import lombok.EqualsAndHashCode;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.Assert;
 
+import java.io.Serial;
+
+@EqualsAndHashCode(callSuper = false)
 public class JWTAuthenticationToken extends AbstractAuthenticationToken {
 
+  @Serial
   private static final long serialVersionUID = 7892623798845693091L;
 
-  private final String requestToken;
-  private UserDetails userDetails;
+  private String requestToken;
 
   public JWTAuthenticationToken(String requestToken) {
     super(AuthorityUtils.NO_AUTHORITIES);
     this.requestToken = requestToken;
-    super.setAuthenticated(true);
+    super.setAuthenticated(false);
   }
 
   @Override
@@ -25,7 +28,7 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
 
   @Override
   public Object getPrincipal() {
-    return this.userDetails;
+    return this.requestToken;
   }
 
   @Override
@@ -38,6 +41,6 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
   @Override
   public void eraseCredentials() {
     super.eraseCredentials();
-    this.userDetails = null;
+    this.requestToken = null;
   }
 }

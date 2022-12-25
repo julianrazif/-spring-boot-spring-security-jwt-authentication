@@ -4,14 +4,14 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.InvalidKeyException;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class JWTUtils {
@@ -24,7 +24,7 @@ public class JWTUtils {
 
   @PostConstruct
   public void init() {
-    this.key = Keys.hmacShaKeyFor(SECRETE.getBytes());
+    this.key = Keys.hmacShaKeyFor(SECRETE.getBytes(StandardCharsets.UTF_8));
   }
 
   public Claims getAllClaimsFromToken(String token) throws ExpiredJwtException, UnsupportedJwtException, MalformedJwtException, SignatureException, IllegalArgumentException {
@@ -33,22 +33,32 @@ public class JWTUtils {
 
   public String generateToken(UserDetails user) throws InvalidKeyException {
     Map<String, Object> claims = new HashMap<>();
-    claims.put("role", user.getAuthorities());
-    return doGenerateToken(claims, user.getUsername());
+    claims.put("username", user.getUsername());
+    claims.put("authorities", populateAuthorities(user.getAuthorities()));
+    return doGenerateToken(claims);
   }
 
   public Boolean validateToken(String token) throws ExpiredJwtException, UnsupportedJwtException, MalformedJwtException, SignatureException, IllegalArgumentException {
     return !isTokenExpired(token);
   }
 
-  private String doGenerateToken(Map<String, Object> claims, String username) throws InvalidKeyException {
+  public String populateAuthorities(Collection<? extends GrantedAuthority> collection) {
+    Set<String> authoritiesSet = new HashSet<>();
+    for (GrantedAuthority grantedAuthority : collection) {
+      authoritiesSet.add(grantedAuthority.getAuthority());
+    }
+    return String.join(",", authoritiesSet);
+  }
+
+  private String doGenerateToken(Map<String, Object> claims) throws InvalidKeyException {
     long expirationTimeLong = Long.parseLong(EXPIRATION_TIME);
     final Date createdDate = new Date();
     final Date expirationDate = new Date(createdDate.getTime() + expirationTimeLong * 1000);
 
     return Jwts.builder()
+      .setIssuer("Demo application")
+      .setSubject("Request authorization for demo application")
       .setClaims(claims)
-      .setSubject(username)
       .setIssuedAt(createdDate)
       .setExpiration(expirationDate)
       .signWith(key)

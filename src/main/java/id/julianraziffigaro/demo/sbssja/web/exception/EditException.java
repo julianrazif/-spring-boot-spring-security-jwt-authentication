@@ -10,8 +10,4 @@ public class EditException extends RuntimeException {
   public EditException(String message, Throwable throwable) {
     super(message, throwable);
   }
-
-  public EditException(Throwable throwable) {
-    super(throwable);
-  }
 }

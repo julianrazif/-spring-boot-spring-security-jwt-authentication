@@ -4,6 +4,7 @@ import lombok.*;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -16,6 +17,7 @@ import java.util.Objects;
 @Table(name = "users")
 public class UserEntity implements Serializable {
 
+  @Serial
   private static final long serialVersionUID = 140423942465064146L;
 
   @Id
@@ -27,6 +29,9 @@ public class UserEntity implements Serializable {
 
   @Column(name = "password")
   private String password;
+
+  @Column(name = "role")
+  private String role;
 
   @Override
   public boolean equals(Object o) {

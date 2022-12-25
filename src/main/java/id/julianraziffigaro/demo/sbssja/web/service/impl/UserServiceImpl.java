@@ -25,8 +25,8 @@ public class UserServiceImpl implements UserService {
   @Override
   public UserDetails login(UserDomain userDomain) {
     try {
-      String username = userDomain.getUsername();
-      String password = userDomain.getPassword();
+      String username = userDomain.username();
+      String password = userDomain.password();
 
       UserDetails user = userRepository.findByUsername(username);
 
@@ -42,18 +42,19 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public UserDetails saveOrUpdate(Action action, UserDomain userDomain) {
-    String username = userDomain.getUsername();
-    String password = pbkdf2Encoder.encode(userDomain.getPassword());
+    String username = userDomain.username();
+    String password = pbkdf2Encoder.encode(userDomain.password());
+    String role = userDomain.role();
 
     if (action == Action.getByName("ADD")) {
       try {
-        return userRepository.save(new UserDomain(username, password));
+        return userRepository.save(new UserDomain(username, password, role));
       } catch (DatabaseException ex) {
         throw new RegisterException(ex.getMessage(), ex);
       }
     } else if (action == Action.getByName("EDIT")) {
       try {
-        return userRepository.update(new UserDomain(username, password));
+        return userRepository.update(new UserDomain(username, password, role));
       } catch (DatabaseException ex) {
         throw new EditException(ex.getMessage(), ex);
       }

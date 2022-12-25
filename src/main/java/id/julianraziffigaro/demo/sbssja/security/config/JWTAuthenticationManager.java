@@ -1,16 +1,19 @@
 package id.julianraziffigaro.demo.sbssja.security.config;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
+@Component("jwtAuthenticationManager")
 public class JWTAuthenticationManager implements AuthenticationManager {
 
   private final JWTUtils jwtUtils;
@@ -23,14 +26,28 @@ public class JWTAuthenticationManager implements AuthenticationManager {
   public Authentication authenticate(Authentication authentication) throws AuthenticationException {
     String token = (String) authentication.getCredentials();
 
-    if (token == null) {
-      throw new UsernameNotFoundException("401 Unauthorized");
+    try {
+      if (Boolean.FALSE.equals(jwtUtils.validateToken(token))) {
+        throw new BadCredentialsException("Token expired!");
+      }
+
+      Claims claims = jwtUtils.getAllClaimsFromToken(token);
+      String username = String.valueOf(claims.get("username", String.class));
+      String authorities = String.valueOf(claims.get("authorities", String.class));
+
+      UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+        username,
+        token,
+        AuthorityUtils.commaSeparatedStringToAuthorityList(authorities)
+      );
+
+      JWTWebAuthenticationDetails details = (JWTWebAuthenticationDetails) authentication.getDetails();
+      usernamePasswordAuthenticationToken.setDetails(details);
+
+      return usernamePasswordAuthenticationToken;
+    } catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException | SignatureException |
+             IllegalArgumentException ex) {
+      throw new BadCredentialsException("Invalid token", ex.getCause());
     }
-
-    Claims claims = jwtUtils.getAllClaimsFromToken(token);
-    String username = claims.getSubject();
-
-    List<String> rolesMap = claims.get("role", List.class);
-    return new UsernamePasswordAuthenticationToken(username, null, rolesMap.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList()));
   }
 }

@@ -1,12 +1,9 @@
 package id.julianraziffigaro.demo.sbssja.web.domain.model;
 
-import lombok.Data;
+import java.io.Serial;
 
-@Data
-public class ErrorDomain implements BaseDomain {
+public record ErrorDomain(Integer errorCode, String message) implements BaseDomain {
 
+  @Serial
   private static final long serialVersionUID = -5320168670067301708L;
-
-  private final Integer errorCode;
-  private final String message;
 }

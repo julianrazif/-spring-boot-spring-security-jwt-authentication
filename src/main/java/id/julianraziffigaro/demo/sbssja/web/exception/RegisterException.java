@@ -10,8 +10,4 @@ public class RegisterException extends RuntimeException {
   public RegisterException(String message, Throwable throwable) {
     super(message, throwable);
   }
-
-  public RegisterException(Throwable throwable) {
-    super(throwable);
-  }
 }

@@ -1,12 +1,9 @@
 package id.julianraziffigaro.demo.sbssja.web.domain.model;
 
-import lombok.Data;
+import java.io.Serial;
 
-@Data
-public class UserDomain implements BaseDomain {
+public record UserDomain(String username, String password, String role) implements BaseDomain {
 
+  @Serial
   private static final long serialVersionUID = -5324708375648684929L;
-
-  private final String username;
-  private final String password;
 }
