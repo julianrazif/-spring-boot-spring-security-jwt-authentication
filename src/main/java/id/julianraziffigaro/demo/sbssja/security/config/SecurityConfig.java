@@ -22,7 +22,7 @@ public class SecurityConfig {
       .formLogin().disable()
       .logout().disable()
       .authorizeRequests()
-      .antMatchers(HttpMethod.POST, "/login").permitAll()
+      .antMatchers(HttpMethod.POST, "/login", "/register").permitAll()
       .anyRequest()
       .fullyAuthenticated();
 

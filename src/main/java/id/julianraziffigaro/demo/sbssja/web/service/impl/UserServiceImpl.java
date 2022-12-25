@@ -1,10 +1,9 @@
 package id.julianraziffigaro.demo.sbssja.web.service.impl;
 
 import id.julianraziffigaro.demo.sbssja.security.service.PBKDF2Encoder;
+import id.julianraziffigaro.demo.sbssja.web.domain.model.Action;
 import id.julianraziffigaro.demo.sbssja.web.domain.model.UserDomain;
-import id.julianraziffigaro.demo.sbssja.web.exception.DataNotFoundException;
-import id.julianraziffigaro.demo.sbssja.web.exception.InvalidFormatException;
-import id.julianraziffigaro.demo.sbssja.web.exception.LoginException;
+import id.julianraziffigaro.demo.sbssja.web.exception.*;
 import id.julianraziffigaro.demo.sbssja.web.repository.impl.UserRepositoryImpl;
 import id.julianraziffigaro.demo.sbssja.web.service.UserService;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,7 +23,7 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public UserDetails login(UserDomain userDomain) throws LoginException {
+  public UserDetails login(UserDomain userDomain) {
     try {
       String username = userDomain.getUsername();
       String password = userDomain.getPassword();
@@ -38,6 +37,28 @@ public class UserServiceImpl implements UserService {
       return user;
     } catch (DataNotFoundException | InvalidFormatException ex) {
       throw new LoginException(ex.getMessage(), ex);
+    }
+  }
+
+  @Override
+  public UserDetails saveOrUpdate(Action action, UserDomain userDomain) {
+    String username = userDomain.getUsername();
+    String password = pbkdf2Encoder.encode(userDomain.getPassword());
+
+    if (action == Action.getByName("ADD")) {
+      try {
+        return userRepository.save(new UserDomain(username, password));
+      } catch (DatabaseException ex) {
+        throw new RegisterException(ex.getMessage(), ex);
+      }
+    } else if (action == Action.getByName("EDIT")) {
+      try {
+        return userRepository.update(new UserDomain(username, password));
+      } catch (DatabaseException ex) {
+        throw new EditException(ex.getMessage(), ex);
+      }
+    } else {
+      return null;
     }
   }
 }
