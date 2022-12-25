@@ -2,6 +2,24 @@ spring:
   application:
     name: "demo for implementation of spring security and jwt in spring boot application"
 
+  datasource:
+    url: jdbc:h2:mem:test
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: sa
+
+  jpa:
+    show-sql: true
+    generate-ddl: false
+    properties:
+      hibernate.dialect: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
 server:
   port: 8080
   servlet:
