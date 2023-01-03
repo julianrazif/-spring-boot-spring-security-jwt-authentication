@@ -2,7 +2,6 @@ package id.julianraziffigaro.demo.sbssja.web.controller;
 
 import id.julianraziffigaro.demo.sbssja.security.config.JWTUtils;
 import id.julianraziffigaro.demo.sbssja.web.domain.dto.BaseDTO;
-import id.julianraziffigaro.demo.sbssja.web.domain.dto.request.RequestDTO;
 import id.julianraziffigaro.demo.sbssja.web.domain.dto.response.ResponseDTO;
 import id.julianraziffigaro.demo.sbssja.web.domain.model.Action;
 import id.julianraziffigaro.demo.sbssja.web.domain.model.AuthenticationDomain;
@@ -38,9 +37,9 @@ public class IndexController extends BaseController {
   }
 
   @PostMapping(value = "/login")
-  public ResponseEntity<BaseDTO> login(@RequestBody RequestDTO<UserDomain> requestDTO) {
+  public ResponseEntity<BaseDTO> login(@RequestBody BaseDTO requestDTO) {
     try {
-      UserDetails user = userService.login(requestDTO.getData());
+      UserDetails user = userService.login((UserDomain) requestDTO.getData());
 
       String token = jwtUtils.generateToken(user);
 
@@ -70,10 +69,12 @@ public class IndexController extends BaseController {
     }
   }
 
-  @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<BaseDTO> register(@RequestBody RequestDTO<UserDomain> requestDTO) {
+  @PostMapping(value = "/register",
+    consumes = MediaType.APPLICATION_JSON_VALUE,
+    produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<BaseDTO> register(@RequestBody BaseDTO requestDTO) {
     try {
-      UserDetails user = userService.saveOrUpdate(Action.ADD, requestDTO.getData());
+      UserDetails user = userService.saveOrUpdate(Action.ADD, (UserDomain) requestDTO.getData());
 
       return restResponse(
         HttpStatus.CREATED,
@@ -93,10 +94,12 @@ public class IndexController extends BaseController {
     }
   }
 
-  @PostMapping(value = "/update", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<BaseDTO> update(@RequestBody RequestDTO<UserDomain> requestDTO) {
+  @PostMapping(value = "/update",
+    consumes = MediaType.APPLICATION_JSON_VALUE,
+    produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<BaseDTO> update(@RequestBody BaseDTO requestDTO) {
     try {
-      UserDetails user = userService.saveOrUpdate(Action.EDIT, requestDTO.getData());
+      UserDetails user = userService.saveOrUpdate(Action.EDIT, (UserDomain) requestDTO.getData());
 
       return restResponse(
         HttpStatus.OK,

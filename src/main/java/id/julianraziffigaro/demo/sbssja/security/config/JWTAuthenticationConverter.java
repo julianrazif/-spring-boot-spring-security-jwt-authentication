@@ -20,11 +20,12 @@ public class JWTAuthenticationConverter implements AuthenticationConverter {
 
   @Override
   public Authentication convert(HttpServletRequest request) {
-    JWTWebAuthenticationDetails details = (JWTWebAuthenticationDetails) this.authenticationDetailsSource.buildDetails(request);
+    JWTWebAuthenticationDetails details = (JWTWebAuthenticationDetails)
+      this.authenticationDetailsSource.buildDetails(request);
 
     if (details.getRequestToken() != null) {
       String token = details.getRequestToken();
-      JWTAuthenticationToken result = new JWTAuthenticationToken(token);
+      var result = new JWTAuthenticationToken(token);
       result.setDetails(details);
 
       return result;

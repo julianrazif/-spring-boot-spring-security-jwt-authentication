@@ -4,13 +4,15 @@ import id.julianraziffigaro.demo.sbssja.web.exception.PasswordException;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
+import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 
 @Service("passwordService")
@@ -25,17 +27,17 @@ public class PasswordService {
   @PostConstruct
   private void init() {
     try {
-      SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
-      String secrete = "this is long long long long long long long secrete keyword";
-      int iteration = 33;
-      int keyLength = 256;
-      String salt = "this is long long long long long long long secrete salt";
-      PBEKeySpec pbeKeySpec = new PBEKeySpec(secrete.toCharArray(), salt.getBytes(), iteration, keyLength);
-      SecretKey secretKey = secretKeyFactory.generateSecret(pbeKeySpec);
+      var secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
+      var secrete = "this is long long long long long long long secrete keyword";
+      var iteration = 33;
+      var keyLength = 256;
+      var salt = "this is long long long long long long long secrete salt";
+      var pbeKeySpec = new PBEKeySpec(secrete.toCharArray(), salt.getBytes(), iteration, keyLength);
+      var secretKey = secretKeyFactory.generateSecret(pbeKeySpec);
 
       secretKeySpec = new SecretKeySpec(secretKey.getEncoded(), "AES");
       cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-    } catch (Exception ex) {
+    } catch (InvalidKeySpecException | NoSuchAlgorithmException | NoSuchPaddingException ex) {
       throw new PasswordException(ex.getMessage(), ex);
     }
   }
@@ -45,7 +47,9 @@ public class PasswordService {
       cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, new IvParameterSpec(ivBytes));
       byte[] encryptedTextBytes = cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
       return Base64.getEncoder().encodeToString(encryptedTextBytes);
-    } catch (Exception ex) {
+    } catch (IllegalBlockSizeException | BadPaddingException
+             | InvalidKeyException | InvalidAlgorithmParameterException ex) {
+
       throw new PasswordException(ex.getMessage(), ex);
     }
   }
@@ -54,7 +58,9 @@ public class PasswordService {
     try {
       cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, new IvParameterSpec(ivBytes));
       return new String(cipher.doFinal(Base64.getDecoder().decode(encryptedText)));
-    } catch (Exception ex) {
+    } catch (IllegalBlockSizeException | BadPaddingException
+             | InvalidKeyException | InvalidAlgorithmParameterException ex) {
+
       throw new PasswordException(ex.getMessage(), ex);
     }
   }

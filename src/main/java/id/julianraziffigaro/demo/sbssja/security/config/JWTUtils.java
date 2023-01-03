@@ -27,7 +27,9 @@ public class JWTUtils {
     this.key = Keys.hmacShaKeyFor(SECRETE.getBytes(StandardCharsets.UTF_8));
   }
 
-  public Claims getAllClaimsFromToken(String token) throws ExpiredJwtException, UnsupportedJwtException, MalformedJwtException, SignatureException, IllegalArgumentException {
+  public Claims getAllClaimsFromToken(String token) throws ExpiredJwtException, UnsupportedJwtException,
+    MalformedJwtException, SignatureException, IllegalArgumentException {
+
     return Jwts.parserBuilder().setSigningKey(this.key).build().parseClaimsJws(token).getBody();
   }
 
@@ -35,25 +37,30 @@ public class JWTUtils {
     Map<String, Object> claims = new HashMap<>();
     claims.put("username", user.getUsername());
     claims.put("authorities", populateAuthorities(user.getAuthorities()));
+
     return doGenerateToken(claims);
   }
 
-  public Boolean validateToken(String token) throws ExpiredJwtException, UnsupportedJwtException, MalformedJwtException, SignatureException, IllegalArgumentException {
+  public Boolean validateToken(String token) throws ExpiredJwtException, UnsupportedJwtException,
+    MalformedJwtException, SignatureException, IllegalArgumentException {
+
     return !isTokenExpired(token);
   }
 
-  public String populateAuthorities(Collection<? extends GrantedAuthority> collection) {
+  public String populateAuthorities(Iterable<? extends GrantedAuthority> collection) {
     Set<String> authoritiesSet = new HashSet<>();
+
     for (GrantedAuthority grantedAuthority : collection) {
       authoritiesSet.add(grantedAuthority.getAuthority());
     }
+
     return String.join(",", authoritiesSet);
   }
 
   private String doGenerateToken(Map<String, Object> claims) throws InvalidKeyException {
-    long expirationTimeLong = Long.parseLong(EXPIRATION_TIME);
-    final Date createdDate = new Date();
-    final Date expirationDate = new Date(createdDate.getTime() + expirationTimeLong * 1000);
+    var expirationTimeLong = Long.parseLong(EXPIRATION_TIME);
+    final var createdDate = new Date();
+    final var expirationDate = new Date(createdDate.getTime() + expirationTimeLong * 1000);
 
     return Jwts.builder()
       .setIssuer("Demo application")
@@ -65,7 +72,9 @@ public class JWTUtils {
       .compact();
   }
 
-  private Boolean isTokenExpired(String token) throws ExpiredJwtException, UnsupportedJwtException, MalformedJwtException, SignatureException, IllegalArgumentException {
+  private Boolean isTokenExpired(String token) throws ExpiredJwtException, UnsupportedJwtException,
+    MalformedJwtException, SignatureException, IllegalArgumentException {
+
     return getAllClaimsFromToken(token).getExpiration().before(new Date());
   }
 }

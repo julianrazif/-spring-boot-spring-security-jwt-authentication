@@ -19,21 +19,22 @@ public class UserRepositoryImpl implements UserRepository {
 
   @Override
   public UserDetails findByUsername(String username) {
-    UserEntity userEntity = findFirstByUsername(username);
+    var userEntity = findFirstByUsername(username);
     return getUserDetails(userEntity);
   }
 
   @Override
   public UserDetails save(UserDomain userDomain) {
     String username = userDomain.username();
-    String password = userDomain.password();
-    String role = userDomain.role();
 
-    UserEntity userEntity = findFirstByUsername(username);
+    var userEntity = findFirstByUsername(username);
 
     if (userEntity != null) {
       throw new DatabaseException(String.format("Duplicate username: %s", username));
     }
+
+    String password = userDomain.password();
+    String role = userDomain.role();
 
     userEntity = save(null, username, password, role);
 
@@ -42,16 +43,16 @@ public class UserRepositoryImpl implements UserRepository {
 
   public UserDetails update(UserDomain userDomain) {
     String username = userDomain.username();
-    String password = userDomain.password();
-    String role = userDomain.role();
 
-    UserEntity userEntity = userEntityRepository.findFirstByUsername(username);
+    var userEntity = userEntityRepository.findFirstByUsername(username);
 
     if (userEntity == null) {
       throw new DatabaseException(String.format("Can not find user with username: %s", username));
     }
 
     Long userId = userEntity.getId();
+    String password = userDomain.password();
+    String role = userDomain.role();
 
     userEntity = save(userId, username, password, role);
 
@@ -59,27 +60,11 @@ public class UserRepositoryImpl implements UserRepository {
   }
 
   private UserEntity findFirstByUsername(String username) {
-    UserEntity userEntity;
-
-    try {
-      userEntity = userEntityRepository.findFirstByUsername(username);
-    } catch (Exception ex) {
-      throw new DatabaseException(String.format("Can not find the user in database with username: %s", username));
-    }
-
-    return userEntity;
+    return userEntityRepository.findFirstByUsername(username);
   }
 
   private UserEntity save(Long id, String username, String password, String role) {
-    UserEntity userEntity;
-
-    try {
-      userEntity = userEntityRepository.save(new UserEntity(id, username, password, role));
-    } catch (Exception ex) {
-      throw new DatabaseException(String.format("Can not save or update the user to database with username: %s", username));
-    }
-
-    return userEntity;
+    return userEntityRepository.save(new UserEntity(id, username, password, role));
   }
 
   private static UserDetails getUserDetails(UserEntity userEntity) {

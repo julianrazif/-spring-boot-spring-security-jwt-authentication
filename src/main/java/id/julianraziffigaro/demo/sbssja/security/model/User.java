@@ -5,18 +5,16 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.util.Assert;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.*;
 import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class User implements UserDetails {
 
+  @Serial
   private static final long serialVersionUID = -8358806941698382067L;
 
   private final String password;
@@ -94,9 +92,13 @@ public class User implements UserDetails {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    User user = (User) o;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    var user = (User) o;
     return username.equals(user.username);
   }
 
@@ -126,14 +128,6 @@ public class User implements UserDetails {
     return new UserBuilder();
   }
 
-  @Deprecated
-  public static UserBuilder withDefaultPasswordEncoder() {
-    Logger.getLogger(User.class.getName()).log(Level.SEVERE, "User.withDefaultPasswordEncoder() is considered unsafe for production "
-      + "and is only intended for sample applications.");
-    PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-    return builder().passwordEncoder(encoder::encode);
-  }
-
   public static UserBuilder withUserDetails(UserDetails userDetails) {
     return withUsername(userDetails.getUsername())
       .password(userDetails.getPassword())
@@ -146,6 +140,7 @@ public class User implements UserDetails {
 
   private static class AuthorityComparator implements Comparator<GrantedAuthority>, Serializable {
 
+    @Serial
     private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
     @Override

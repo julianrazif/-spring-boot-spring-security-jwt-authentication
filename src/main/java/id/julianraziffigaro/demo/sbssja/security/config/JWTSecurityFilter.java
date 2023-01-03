@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.util.Assert;
@@ -19,16 +18,17 @@ import java.io.IOException;
 @Slf4j
 public class JWTSecurityFilter extends OncePerRequestFilter {
 
+  private static final boolean IGNORE_FAILURE = false;
+
   private final AuthenticationManager authenticationManager;
 
   private final AuthenticationEntryPoint authenticationEntryPoint;
 
   private final JWTAuthenticationConverter authenticationConverter;
 
-  private static final boolean IGNORE_FAILURE = false;
-
   public JWTSecurityFilter(AuthenticationManager authenticationManager,
                            AuthenticationEntryPoint authenticationEntryPoint) {
+
     Assert.notNull(authenticationManager, "authentication manager can not be null");
     Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint can not be null");
 
@@ -47,7 +47,10 @@ public class JWTSecurityFilter extends OncePerRequestFilter {
   }
 
   @Override
-  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+  protected void doFilterInternal(HttpServletRequest request,
+                                  HttpServletResponse response,
+                                  FilterChain filterChain) throws ServletException, IOException {
+
     try {
       JWTAuthenticationToken authRequest = (JWTAuthenticationToken) this.authenticationConverter.convert(request);
 
@@ -64,7 +67,7 @@ public class JWTSecurityFilter extends OncePerRequestFilter {
       log.info(String.format("Found token '%s' in authorization header", token));
 
       Authentication authResult = this.authenticationManager.authenticate(authRequest);
-      SecurityContext context = SecurityContextHolder.createEmptyContext();
+      var context = SecurityContextHolder.createEmptyContext();
       context.setAuthentication(authResult);
       SecurityContextHolder.setContext(context);
 
@@ -90,11 +93,11 @@ public class JWTSecurityFilter extends OncePerRequestFilter {
   }
 
   protected void onSuccessfulAuthentication() {
-    log.info("token berhasil di verifikasi");
+    log.info("Success");
   }
 
   protected void onUnsuccessfulAuthentication() {
-    log.info("token gagal di verifikasi");
+    log.info("Failed");
   }
 
   protected boolean isIgnoreFailure() {

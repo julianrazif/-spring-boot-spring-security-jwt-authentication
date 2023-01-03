@@ -18,6 +18,7 @@ public class UserServiceImpl implements UserService {
 
   public UserServiceImpl(UserRepositoryImpl userRepository,
                          PBKDF2Encoder pbkdf2Encoder) {
+
     this.userRepository = userRepository;
     this.pbkdf2Encoder = pbkdf2Encoder;
   }

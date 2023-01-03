@@ -1,6 +1,5 @@
 package id.julianraziffigaro.demo.sbssja.security.config;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -31,11 +30,11 @@ public class JWTAuthenticationManager implements AuthenticationManager {
         throw new BadCredentialsException("Token expired!");
       }
 
-      Claims claims = jwtUtils.getAllClaimsFromToken(token);
-      String username = String.valueOf(claims.get("username", String.class));
-      String authorities = String.valueOf(claims.get("authorities", String.class));
+      var claims = jwtUtils.getAllClaimsFromToken(token);
+      var username = String.valueOf(claims.get("username", String.class));
+      var authorities = String.valueOf(claims.get("authorities", String.class));
 
-      UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+      var usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
         username,
         token,
         AuthorityUtils.commaSeparatedStringToAuthorityList(authorities)
@@ -47,7 +46,7 @@ public class JWTAuthenticationManager implements AuthenticationManager {
       return usernamePasswordAuthenticationToken;
     } catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException | SignatureException |
              IllegalArgumentException ex) {
-      throw new BadCredentialsException("Invalid token", ex.getCause());
+      throw new BadCredentialsException("Invalid token", ex);
     }
   }
 }

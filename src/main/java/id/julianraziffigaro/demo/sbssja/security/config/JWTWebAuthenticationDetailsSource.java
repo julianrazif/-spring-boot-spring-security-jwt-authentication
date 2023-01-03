@@ -4,7 +4,8 @@ import org.springframework.security.authentication.AuthenticationDetailsSource;
 
 import javax.servlet.http.HttpServletRequest;
 
-public class JWTWebAuthenticationDetailsSource implements AuthenticationDetailsSource<HttpServletRequest, JWTWebAuthenticationDetails> {
+public class JWTWebAuthenticationDetailsSource implements AuthenticationDetailsSource<HttpServletRequest,
+  JWTWebAuthenticationDetails> {
 
   @Override
   public JWTWebAuthenticationDetails buildDetails(HttpServletRequest context) {

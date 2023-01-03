@@ -3,8 +3,7 @@ package id.julianraziffigaro.demo.sbssja.web.domain.model;
 public enum Action {
 
   ADD("ADD"),
-  EDIT("EDIT"),
-  DELETE("DELETE");
+  EDIT("EDIT");
 
   private final String name;
 
